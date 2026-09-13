@@ -1,0 +1,11 @@
+name: graphsage_supply_chain_risk
+channels:
+  - snowflake
+dependencies:
+  - pandas
+  - numpy
+  - scipy
+  - scikit-learn
+  - networkx
+  - matplotlib
+  - seaborn
