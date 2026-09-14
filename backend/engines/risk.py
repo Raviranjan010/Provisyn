@@ -216,7 +216,7 @@ class RiskEngine:
         return model, metrics
 
     def explain_entity_risk(self, entity_id: str) -> Dict[str, Any]:
-        """Explain risk drivers for an entity (SHAP style breakdown)."""
+        """Explain risk drivers for an entity using SHAP feature attribution when available."""
         df_risk = self.repo.get_risk_scores()
         row = df_risk[df_risk["ENTITY_ID"] == entity_id] if not df_risk.empty else pd.DataFrame()
         
@@ -233,6 +233,37 @@ class RiskEngine:
         
         r = row.iloc[0]
         score = float(r["RISK_SCORE"])
+
+        # Try SHAP explainer from ml.evaluation
+        try:
+            from ml.risk.model import extract_vendor_features, TabularRiskPipeline
+            from ml.evaluation.explainer import RiskModelExplainer
+            
+            df_feats, y_reg, y_clf = extract_vendor_features(self.repo)
+            entity_feats = df_feats[df_feats["entity_id"] == entity_id]
+            if not entity_feats.empty:
+                pipe = getattr(self, "_tabular_pipeline", None)
+                if pipe is None or not pipe.is_trained:
+                    pipe = TabularRiskPipeline()
+                    pipe.train(df_feats, y_reg, y_clf)
+                    self._tabular_pipeline = pipe
+                
+                explainer = RiskModelExplainer(pipe)
+                shap_drivers = explainer.explain_instance(entity_feats.iloc[0])
+                if shap_drivers:
+                    return {
+                        "entity_id": entity_id,
+                        "entity_type": r["ENTITY_TYPE"],
+                        "name": r.get("NAME", entity_id),
+                        "total_score": score,
+                        "category": r["RISK_CATEGORY"],
+                        "drivers": shap_drivers[:5],
+                        "method": "SHAP TreeExplainer"
+                    }
+        except Exception as e:
+            logger.debug(f"SHAP explanation fallback: {e}")
+
+        # Explainable heuristic decomposition
         drivers = [
             {"factor": "Financial Health Index", "impact": f"+{score * 0.35:.2f}", "description": "Solvency & liquidity assessment"},
             {"factor": "Regional & Geopolitical Risk", "impact": f"+{score * 0.30:.2f}", "description": "Mining export and port jurisdiction"},
@@ -245,5 +276,6 @@ class RiskEngine:
             "name": r.get("NAME", entity_id),
             "total_score": score,
             "category": r["RISK_CATEGORY"],
-            "drivers": drivers
+            "drivers": drivers,
+            "method": "Multi-tier Factor Decomposition"
         }

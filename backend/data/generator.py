@@ -387,11 +387,11 @@ def generate_all_data(seed: int = 42) -> Dict[str, pd.DataFrame]:
     ]
     df_scenarios = pd.DataFrame(scenarios_data)
 
-    # 13. MODEL_VERSIONS (New entity)
+    # 13. MODEL_VERSIONS (Synthetic seed placeholder rows, clearly labeled per P0-3)
     models_data = [
-        {"MODEL_NAME": "RiskScoreRegressor", "VERSION": "v1.2.0-provisyn", "TRAINING_DATE": datetime.now() - timedelta(days=7), "DATASET_VERSION": "seed_42_synthetic", "METRICS_JSON": '{"PR_AUC": 0.88, "F1": 0.82, "Accuracy": 0.89}', "STATUS": "ACTIVE"},
-        {"MODEL_NAME": "StockoutClassifier", "VERSION": "v1.0.1", "TRAINING_DATE": datetime.now() - timedelta(days=14), "DATASET_VERSION": "seed_42_synthetic", "METRICS_JSON": '{"PR_AUC": 0.84, "F1": 0.79}', "STATUS": "ACTIVE"},
-        {"MODEL_NAME": "JaccardLinkPredictor", "VERSION": "v2.0.0", "TRAINING_DATE": datetime.now() - timedelta(days=3), "DATASET_VERSION": "seed_42_synthetic", "METRICS_JSON": '{"precision_at_10": 0.90}', "STATUS": "ACTIVE"},
+        {"MODEL_NAME": "RiskScoreRegressor", "VERSION": "v1.0.0-synthetic", "TRAINING_DATE": datetime.now() - timedelta(days=7), "DATASET_VERSION": "seed_42_synthetic", "METRICS_JSON": '{"PR_AUC": 0.88, "F1": 0.82, "Accuracy": 0.89}', "STATUS": "SYNTHETIC_DEMO", "NOTE": "illustrative placeholder — no model has been trained"},
+        {"MODEL_NAME": "StockoutClassifier", "VERSION": "v1.0.0-synthetic", "TRAINING_DATE": datetime.now() - timedelta(days=14), "DATASET_VERSION": "seed_42_synthetic", "METRICS_JSON": '{"PR_AUC": 0.84, "F1": 0.79}', "STATUS": "SYNTHETIC_DEMO", "NOTE": "illustrative placeholder — no model has been trained"},
+        {"MODEL_NAME": "JaccardLinkPredictor", "VERSION": "v1.0.0-synthetic", "TRAINING_DATE": datetime.now() - timedelta(days=3), "DATASET_VERSION": "seed_42_synthetic", "METRICS_JSON": '{"precision_at_10": 0.90}', "STATUS": "SYNTHETIC_DEMO", "NOTE": "illustrative placeholder — no model has been trained"},
     ]
     df_models = pd.DataFrame(models_data)
 
